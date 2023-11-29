@@ -1,6 +1,7 @@
 module Lib
     ( someFunc
     , runapp
+    , runapp2
     ) where
 import Debug.Trace (trace)
 import Data.Char (isUpper, ord)
@@ -52,6 +53,37 @@ runapp f =
     in
         trace ("res: " ++ show pri) $ sum pri
 
-
-
+batchBadge :: [String] -> String -> String
+batchBadge [] res = res
+batchBadge (h:t) res  = 
+    let
+        dups :: String
+        dups = removeDupes (findDupes h res)
+    in
+        batchBadge t dups
         
+
+processBadge :: [String] -> Int
+processBadge [] = 0
+processBadge ls =
+    let
+        start :: [String]
+        start = take 3 ls
+
+        end :: [String]
+        end = drop 3 ls
+
+        dups = batchBadge start (head start)
+
+    in
+        toPriority (head dups) + processBadge end
+    
+
+runapp2 :: String -> Maybe Int
+runapp2 f = 
+    let ln = lines f
+    in 
+        if (length ln `mod` 3) /= 0
+        then Nothing
+        else Just $ processBadge ln
+
