@@ -22,7 +22,7 @@ getRange r =
         Just $ [read s :: Int .. read e :: Int]
 
 lastElem :: [a] -> Maybe a
-lastElem [] = error "Empty list"
+lastElem [] = Nothing
 lastElem [x] = Just x
 lastElem (_:xs) = lastElem xs
 
