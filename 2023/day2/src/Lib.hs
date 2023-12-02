@@ -80,7 +80,7 @@ isValidGame s g =
         spls = samples g
 
         isValidSample :: Sample -> Bool
-        isValidSample s' = red s' < red s && green s' < green s && blue s' < blue s
+        isValidSample s' = red s' <= red s && green s' <= green s && blue s' <= blue s
     in 
         all id (map isValidSample spls)
     
