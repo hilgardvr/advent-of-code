@@ -1,6 +1,7 @@
 module Lib
     ( someFunc
-    , runapp
+    , validApp
+    , fewestApp
     ) where
 
 import Debug.Trace (trace)
@@ -92,13 +93,35 @@ validSample = Sample {
     , blue = 14
 }
 
-runapp :: String -> Integer
-runapp s = 
+validApp :: String -> Integer
+validApp s = 
     let
-        ls :: [String]
         ls = lines s
         games = map (splitAtAndRemove ':') ls
         readGames = map parseGame games
         validGames = filter (isValidGame validSample) readGames
     in
         trace (show validGames) (sum (map gid validGames))
+
+maxSamples :: [Sample] -> Sample
+maxSamples xs =
+    foldr (\e a -> 
+        Sample {
+            red = max (red e) (red a)
+            , green = max (green e) (green a)
+            , blue = max (blue e) (blue a)
+        }) emptySample xs
+
+powerSample :: Sample -> Integer
+powerSample s = red s * green s * blue s
+
+fewestApp :: String -> Integer
+fewestApp s = 
+    let
+        ls = lines s
+        games = map (splitAtAndRemove ':') ls
+        readGames = map parseGame games
+        maxes = map (maxSamples . samples) readGames
+        sums = map powerSample maxes
+    in
+        trace (show (length sums) ++ show sums) (sum sums)
