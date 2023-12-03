@@ -1,6 +1,7 @@
 module Lib
     ( someFunc
     , partNumbers
+    , gearsNumbers
     ) where
 import Data.Char (isNumber)
 import Debug.Trace (trace)
@@ -65,8 +66,8 @@ numsWithAdjacents :: (Coord) -> [(Coord, String)] -> [(Coord, Char)] -> [(Coord,
 numsWithAdjacents _ [] _ = []
 numsWithAdjacents max (h:t) cs = 
     let 
-        adjs = adjacents max h
-        cCoords = map fst cs
+        adjs = trace ("before: " ++ show cs) adjacents max h
+        cCoords = trace ("adj: " ++ show adjs) map fst cs
 
         matches :: [Coord] -> Bool
         matches [] = False
@@ -78,6 +79,17 @@ numsWithAdjacents max (h:t) cs =
         if matches cCoords
         then h : numsWithAdjacents max t cs
         else numsWithAdjacents max t cs
+
+gearsLine :: Int -> Int -> String -> [(Coord, Char)]
+gearsLine _ _ [] = []
+gearsLine x y xs = 
+    if head xs == '*'
+    then (Coord {x = x, y = y}, '*') : gearsLine (x + 1) y (drop 1 xs) 
+    else gearsLine (x + 1) y (drop 1 xs) 
+
+gearsIndexParser :: Int -> [String] -> [(Coord, Char)]
+gearsIndexParser _ [] = []
+gearsIndexParser y' (x':xs) = gearsLine 0 y' x' ++ gearsIndexParser (y'+1) xs
 
 
 partNumbers :: String -> Int
@@ -94,4 +106,29 @@ partNumbers s =
     in
         trace (show res) total
 
+gearsNums :: (Coord) -> [(Coord, String)] -> (Coord, Char) -> Int
+gearsNums max nums' gear = 
+    let 
+        nums = trace ("here") numsWithAdjacents max nums' [gear]
+
+        ratio :: [(Coord, String)] -> Int
+        ratio ns = foldr (\e a -> (read (snd e) :: Int) * a) 1 ns
+    in
+        if length nums == 2
+        then trace ("done:" ++ show nums) (ratio nums)
+        else trace ("none") 0
+
+
+gearsNumbers :: String -> Int
+gearsNumbers s = 
+    let
+        ls = lines s
+        numXs = (length $ head ls) - 1
+        numYs = (length ls) - 1
+        max' = Coord {x = numXs, y = numYs}
+        nis = numIndexParser 0 ls
+        gis = trace (show nis) gearsIndexParser 0 ls
+        ratios = trace (show gis) map (gearsNums max' nis) gis
+    in
+        sum ratios
 
